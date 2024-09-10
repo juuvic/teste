@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  sistema1:
+    build:
+      context: ./programa1  # Caminho do Dockerfile do programa 1
+    container_name: programa1
+    ports:
+      - "5001:5001"
+    depends_on:
+      - sistema2
+    networks:
+      - app-network
+
+  sistema2:
+    build:
+      context: ./programa2  # Caminho do Dockerfile do programa 2
+    container_name: programa2
+    ports:
+      - "5002:5002"
+    depends_on:
+      - sqlserver
+    networks:
+      - app-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "password"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sqlserverdata:
+    driver: local
